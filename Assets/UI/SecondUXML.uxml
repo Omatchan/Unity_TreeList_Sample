@@ -1,0 +1,7 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <ui:Template name="ButtonTemplate" src="./TemplateUXML.uxml" />
+    <ui:Instance template="ButtonTemplate">
+        <ui:AttributeOverrides element-name="label-test" text="This override a text" />
+        <ui:AttributeOverrides element-name="button-test" text="This override a button text" />
+    </ui:Instance>
+</ui:UXML>
