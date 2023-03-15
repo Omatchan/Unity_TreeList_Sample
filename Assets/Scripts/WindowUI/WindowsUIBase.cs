@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
@@ -6,9 +7,13 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using UnityEngine.UIElements;
+using static UnityEngine.GraphicsBuffer;
 
 public class WindowsUIBase : MonoBehaviour
 {
+    public GameObject InnerUI;
+    public int minWidth;
+    public int minHeight;
     [SerializeField] private GameObject mainPanel;
     private GameObject title;
     private GameObject topBar;
@@ -46,12 +51,17 @@ public class WindowsUIBase : MonoBehaviour
         bottomLeftCorner = mainPanel.transform.Find("BottomLeftCorner").gameObject;
         bottomRightCorner = mainPanel.transform.Find("BottomRightCorner").gameObject;
         basePanel = mainPanel.transform.Find("Base").gameObject;
+
+        // 内部UIの位置調整
+        var content = GameObject.FindWithTag("Content").gameObject;
+        var Inner = Instantiate(InnerUI, Vector3.zero, Quaternion.identity, content.transform);
+        Inner.transform.localPosition = new Vector3(0, 0, 0);
+        //(content.transform as RectTransform).sizeDelta = (Inner.transform as RectTransform).sizeDelta;
     }
 
     // Update is called once per frame
     void Update()
     {
-
     }
 
     public void OnBeginDrag(BaseEventData eventData)
@@ -60,8 +70,6 @@ public class WindowsUIBase : MonoBehaviour
         this.canvasGroup.blocksRaycasts = false;
 
         //移動したいUIオブジェクトの最初の位置
-        //startPos = eventData.selectedObject.transform.position;
-
         positions[mainPanel] = (mainPanel.transform as RectTransform).position;
         positions[title] = (title.transform as RectTransform).position;
         positions[topBar] = (topBar.transform as RectTransform).position;
@@ -165,12 +173,12 @@ public class WindowsUIBase : MonoBehaviour
                     break;
             }
             var panelSize = sizes[mainPanel] + scalingSize;
-            Debug.Log($"SizeCheck  {dragTyoe}  MoveAmount   x: {moveAmount.x,11:F5}  y: {moveAmount.y,11:F5}");
-            Debug.Log($"SizeCheck  {dragTyoe}  ScalingSize  x: {scalingSize.x,11:F5}  y: {scalingSize.y,11:F5}");
-            Debug.Log($"SizeCheck  {dragTyoe}  PanelSize    x: {panelSize.x,11:F5}  y: {panelSize.y,11:F5}");
-            if (panelSize.x < 100 || panelSize.y < 50)
+            //Debug.Log($"SizeCheck  {dragTyoe}  MoveAmount   x: {moveAmount.x,11:F5}  y: {moveAmount.y,11:F5}");
+            //Debug.Log($"SizeCheck  {dragTyoe}  ScalingSize  x: {scalingSize.x,11:F5}  y: {scalingSize.y,11:F5}");
+            //Debug.Log($"SizeCheck  {dragTyoe}  PanelSize    x: {panelSize.x,11:F5}  y: {panelSize.y,11:F5}");
+            if (panelSize.x < minWidth || panelSize.y < minHeight)
             {
-                Debug.Log($" -> Return");
+                //Debug.Log($" -> Return");
                 return;
             }
         }
@@ -305,6 +313,17 @@ public class WindowsUIBase : MonoBehaviour
         this.canvasGroup.blocksRaycasts = true;
     }
 
+    public void OnVerticalScrollChange(Vector2 pos)
+    {
+        Debug.Log(pos.ToString());
+    }
+
+
+    #region Private Methods
+    // ------------------------------------------------------------
+    // Private Methods
+    // ------------------------------------------------------------
+
     private void MoveX(GameObject target, Vector2 moveAmount, bool sign)
     {
         var beforePosition = positions[target];
@@ -412,4 +431,6 @@ public class WindowsUIBase : MonoBehaviour
         (target.transform as RectTransform).sizeDelta = sizeDelta;
         //Debug.Log($"ResizeXY  {target.name}  Size  x: {(target.transform as RectTransform).sizeDelta.x,11:F5}  y: {(target.transform as RectTransform).sizeDelta.y,11:F5}");
     }
+
+    #endregion
 }
